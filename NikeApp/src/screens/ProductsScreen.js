@@ -2,6 +2,7 @@ import { FlatList, Image, View, Pressable } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 
 import { selectProducts, setSelectedProduct } from "../features/productsSlice";
+import { useGetProductsQuery } from "../features/apiSlice";
 
 
 const ProductScreen = ({ navigation }) => {
