@@ -6,15 +6,27 @@ import {
   Text,
   TouchableOpacity,
   View,
+  ActivityIndicator,
 } from "react-native";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { addCartItem } from "../features/cartSlice";
 
-import { selectSelectedProduct } from "../features/productsSlice";
+import { useGetProductQuery } from "../features/apiSlice";
 
-const ProductDetailsScreen = ({ navigation }) => {
+const ProductDetailsScreen = ({ navigation, route }) => {
   const dispatch = useDispatch();
-  const product = useSelector(selectSelectedProduct);
+
+  const { data, error, isLoading } = useGetProductQuery(route.params.id);
+
+  if (isLoading) {
+    return <ActivityIndicator />;
+  }
+
+  if (error) {
+    return <Text>{error.error}</Text>;
+  }
+
+  const product = data.data;
 
   const addToCart = () => {
     dispatch(addCartItem({ product }));
