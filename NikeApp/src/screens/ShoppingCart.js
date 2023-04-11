@@ -1,18 +1,49 @@
-import { FlatList, Text, View, TouchableOpacity } from "react-native";
+import { FlatList, Text, View, TouchableOpacity, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import CartListItem from "../components/CartListItem";
-import { selectCartItems, selectSubtotal, selectDeliveryPrice , selectTotal} from "../features/cartSlice";
-import { useSelector } from "react-redux";
-
+import {
+  selectCartItems,
+  selectSubtotal,
+  selectDeliveryPrice,
+  selectTotal,
+  clear,
+} from "../features/cartSlice";
+import { useSelector, useDispatch } from "react-redux";
+import { useCreateOrderMutation } from "../features/apiSlice";
 
 const ShoppingCart = () => {
 
-  const cartItems = useSelector(selectCartItems);
+  const dispatch = useDispatch();
 
+  const cartItems = useSelector(selectCartItems);
   const subtotal = useSelector(selectSubtotal);
   const deliveryPrice = useSelector(selectDeliveryPrice);
   const total = useSelector(selectTotal);
+
+  const [createOrder, { data, isLoading, error }] = useCreateOrderMutation({});
+
+  const onCreateOrder = async () => {
+    const result = await createOrder({
+      items: cartItems,
+      subtotal,
+      deliveryPrice,
+      total,
+      customer: {
+        name: "Danny",
+        address: "123 Main St",
+        email: "example@example.com",
+      },
+    });
+
+    if (result.data?.status === 201) {
+      Alert.alert(
+        "Order completed successfully",
+        `Your order reference is ${result.data.data.ref}`
+      );
+      dispatch(clear());
+    }
+  };
 
   return (
     <SafeAreaView className='w-full flex-1'>
@@ -41,7 +72,7 @@ const ShoppingCart = () => {
 
       <TouchableOpacity
         className='bg-black absolute bottom-6 w-[90%] items-center self-center p-4 rounded-full'
-        onPress={() => this}
+        onPress={onCreateOrder}
       >
         <Text className='text-white font-[500] text-[16px]'>Checkout</Text>
       </TouchableOpacity>
